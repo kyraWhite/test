@@ -1,0 +1,21 @@
+{block content}
+<h1 n:block="title">Добавление персонала</h1>
+
+
+{control editPersonForm}
+{block scripts}
+    {include parent}
+{/block}
+
+
+
+<script>
+
+    $(function() {
+        $(".datepicker").datepicker({
+            dateFormat: 'dd.mm.yy',
+            defaultDate: new Date()
+        });
+    });
+
+</script>

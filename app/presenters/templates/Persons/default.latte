@@ -1,0 +1,117 @@
+
+<script type='text/javascript' src="{$basePath}/scripts/jquery-ui-timepicker-addon.js"></script>
+<script type='text/javascript' src="{$basePath}/scripts/dateInput.js"></script>
+<link rel="stylesheet" type="text/css" href="{$basePath}/styles/jquery-ui-timepicker-addon.css">
+<link rel="stylesheet" type="text/css" href="{$basePath}/styles/dateInput.css">
+<link rel="stylesheet" href="css/style3.css">
+<script src="https://code.jquery.com/jquery-1.9.1.min.js"></script>
+{block content}
+<h1>Список сотрудников</h1>
+    <a n:href="add">Добавить сотрудника</a>
+    <input id="serch" type="text" value={$search}>
+    <input id="serchButton" type="Button" value="Поиск" >
+
+    <ul n:snippet="itemsContainer">
+        {if count($staffs)}
+            <table>
+                <tr>
+                    <th>ФИО</th>
+                    <th>Должность</th>
+                    <th>Трудовой статус</th>
+                    <th>Дата приема на работу</th>
+                    <th>Действия</th>
+                </tr>
+                <div id="spisok">
+                        {foreach $staffs as $person}
+                            <tr>
+                                <td> <a n:href="edit id=>$person->id">{$person->name}</a></td>
+                                <td>{$person->position}</td>
+                                <td>{(boolval($person->status) ? 'Работает' : 'Не работает')}</td>
+                                <td>{(boolval($person->status) ? $person->work_start_dt : '')|date:'%d.%m.%Y'}</td>
+                                <td><a n:href="edit id=>$person->id">Редактировать</a>
+                                    <a n:href="delete id=>$person->id">Удалить</a>
+
+                                </td>
+                            </tr>
+                        {/foreach}
+                </div>
+            </table>
+        {else}
+            <p>Никого нет!</p>
+        {/if}
+        <td>
+
+
+    <div class="pagination">
+        {if !$paginator->isFirst()}
+            <a class="pageList" moove={1} n:href="default, 1, search=>$search">First</a>
+            &nbsp;|&nbsp;
+            <a class="pageList" moove={$paginator->page-1} n:href="default, $paginator->page-1,search=>$search">Previous</a>
+            &nbsp;|&nbsp;
+        {/if}
+
+        Page {$paginator->page} of {$paginator->pageCount}
+
+        {if !$paginator->isLast()}
+            &nbsp;|&nbsp;
+            <a class="pageList" moove={$paginator->page+1} n:href="default, $paginator->page+1,search=>$search">Next</a>
+            &nbsp;|&nbsp;
+            <a class="pageList" moove={$paginator->pageCount} n:href="default, $paginator->pageCount,search=>$search">Last</a>
+        {/if}
+    </div>
+    </ul>
+
+{block scripts}
+    {include parent}
+{/block}
+
+<script>
+
+    $(function() {
+        $('#serchButton').click(function () {
+            var serchText = $("#serch").val();
+                $.nette.ajax({
+                    type: "GET",
+                    url:{link search!},
+                    data: {
+                        search:serchText,
+                    }
+                });
+        })
+    });
+
+    $(function() {
+        $('.pageList1').click(function () {
+            var muve = $(this).attr('moove');
+            $.nette.ajax({
+                type: "GET",
+                url:{link update!},
+                data: {
+                    $paginator:1,
+                }
+            });
+        })
+    });
+    jQuery(document).ready(function($) {
+        $('.pageList')
+            .click(function (event) {
+                var muve = $(this).attr('moove');
+                event.preventDefault();
+                event.stopPropagation();
+                event.stopImmediatePropagation
+                $.nette.ajax({
+                    type: "GET",
+                    url:{link update!},
+                    data: {
+                        $page:muve,
+                        $search:{$search}
+                    }
+                });
+            });
+    });
+
+
+
+
+</script>
+{/block}

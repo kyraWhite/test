@@ -1,0 +1,24 @@
+
+
+{block content}
+<h1 n:block="title">Радактирование персонала</h1>
+
+
+{control editPersonForm}
+
+
+{block scripts}
+    {include parent}
+{/block}
+
+<script>
+
+    $(function() {
+        $(".datepicker").datepicker({
+            dateFormat: 'dd.mm.yy',
+            defaultDate: {$person->work_start_dt}
+        });
+    });
+
+</script>
+{/block}
