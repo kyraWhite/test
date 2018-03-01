@@ -93,12 +93,11 @@
         })
     });
     jQuery(document).ready(function($) {
-        $('.pageList')
+        $('.pageList1')
             .click(function (event) {
                 var muve = $(this).attr('moove');
                 event.preventDefault();
                 event.stopPropagation();
-                event.stopImmediatePropagation
                 $.nette.ajax({
                     type: "GET",
                     url:{link update!},

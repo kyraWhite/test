@@ -18,9 +18,11 @@ class PersonsPresenter extends Nette\Application\UI\Presenter
     /** @var DeletePersonFactory @inject */
     public $deletePersonForm;
 
-    private $isAjax;
+    private $isAjax = false;
 
     private $search = '';
+
+    const ON_PAGE = 10;
 
     public function renderEdit($id = 0,$page = 0)
     {
@@ -51,7 +53,7 @@ class PersonsPresenter extends Nette\Application\UI\Presenter
                 //$this->error('Record not found');
                 $this->flashMessage('Record not found');
             }else{
-                $this->flashMessage('delete id = '.$id);
+
                 $result = $this->personsManager->deleteById($id);
             }
 
@@ -65,17 +67,12 @@ class PersonsPresenter extends Nette\Application\UI\Presenter
 
 
     public function renderDefault(int $page = 1,$search = ''){
-        if ($this->isAjax === null){
+
+        if ($this->isAjax == false){
             $this->isAjax = '';
             $this->search = $search;
-            // количество записей
-            $staffsCount = $this->personsManager->getPublishedStaffsCount($search);
-            $paginator = new Nette\Utils\Paginator;
-            $paginator->setItemCount($staffsCount); // count
-            $paginator->setItemsPerPage(10); // items per page
-            $paginator->setPage($page); // actual page number
+            $paginator = self::initPaginator($page,$search);
             $staffs = $this->personsManager->findPublishedStaff($paginator->getLength(), $paginator->getOffset(),$search);
-
             $this->template->staffs = $staffs;
             $this->template->search = $this->search;
             $this->template->paginator = $paginator;
@@ -84,39 +81,29 @@ class PersonsPresenter extends Nette\Application\UI\Presenter
 
     public function handleUpdate(int $page = 1,$search = '')
     {
-        if ($this->isAjax()){
+        if ($this->isAjax() and !$this->isAjax){
             //$this->error('Record not found');
             $this->isAjax = true;
             // количество записей
             $this->search = $search;
-            $staffsCount = $this->personsManager->getPublishedStaffsCount($search);
-            $paginator = new Nette\Utils\Paginator;
-            $paginator->setItemCount($staffsCount); // count
-            $paginator->setItemsPerPage(3); // items per page
-            $paginator->setPage($page); // actual page number
-
+            $paginator = self::initPaginator($page,$search);
             $staffs = $this->personsManager->findPublishedStaff($paginator->getLength(), $paginator->getOffset(),$search);
-
             $this->template->staffs = $staffs;
             $this->template->paginator = $paginator;
             $this->template->search = $this->search;
             $this->redrawControl('itemsContainer');
         }
 
-
     }
 
     public function handleSearch($search='')
     {
-        $this->isAjax = $search;
+
         //$this->error('Record not found '.$search);
-        if ($this->isAjax()) {
+        if ($this->isAjax() and !$this->isAjax) {
+            $this->isAjax = true;
             $this->search = $search;
-            $staffsCount = $this->personsManager->getPublishedStaffsCount($search);
-            $paginator = new Nette\Utils\Paginator;
-            $paginator->setItemCount($staffsCount); // count
-            $paginator->setItemsPerPage(3); // items per page
-            $paginator->setPage(1); // actual page number
+            $paginator = self::initPaginator(1,$search);
             $staffs = $this->personsManager->findPublishedStaff($paginator->getLength(), $paginator->getOffset(),$search);
             $this->template->staffs = $this->personsManager->findLikeAll($search);
             $this->template->paginator = $paginator;
@@ -125,6 +112,14 @@ class PersonsPresenter extends Nette\Application\UI\Presenter
         }
     }
 
+    private function initPaginator($page,$search){
+        $staffsCount = $this->personsManager->getPublishedStaffsCount($search);
+        $paginator = new Nette\Utils\Paginator;
+        $paginator->setItemCount($staffsCount); // count
+        $paginator->setItemsPerPage(self::ON_PAGE); // items per page
+        $paginator->setPage($page); // actual page number
+        return $paginator;
+    }
 
     public function renderAdd(){
         $form = $this['editPersonForm'];
